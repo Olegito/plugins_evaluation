@@ -3,15 +3,16 @@ This repository is made to evaluate various __[Maven](https://maven.apache.org/)
 
 # General comparison
 
-| Feature | Jib |Kaniko|
-| ------- | ----------- | ---------|
-| Dockerfile   | not needed | needed|
-| Docker damon   | optional | optional|
-| Windows containers | yes | no |
-| setting | optional from simple to specefic |
-| peformance    | good |
-| work with online repos    | yes | yes|
-| compatibility    | Maven, Gradle | |
+| Feature | Jib |Kaniko|Quarkus|
+| ------------------ | ----------- | ---------|------|
+| Dockerfile         | not needed | needed| needed
+| Docker damon       | optional | optional| needed
+| Windows containers | yes | no | yes
+| setting            | optional from simple to specefic | | detailed, specific, with Dockerfile|
+| peformance    | good | |multistage images very memory consuming|
+| work with online repos    | yes | yes| not detected|
+| compatibility    | Maven, Gradle | | |
+|documentation quality|good||big, helping examples, but sometimes not correct|
 
 # What you need to know before starting
 
@@ -175,4 +176,6 @@ __Note:__ The first line  `FROM... 19.3.1` was changed to "19.3.1-java11", becau
 
 Build multistage docker image with:
 
+    docker build -f src/main/docker/Dockerfile.multistage -t quarkus-quickstart/getting-started .
 
+__Note:__ The build of this image failed two times with code 137 (out of memory). So further work with this was tool was stopped. 
