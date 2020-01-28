@@ -3,14 +3,15 @@ This repository is made to evaluate various __[Maven](https://maven.apache.org/)
 
 # General comparison
 
-| Feature | Jib |
-| ------- | ----------- |
-| Dockerfile   | not needed |
-| Docker damon   | optional |
+| Feature | Jib |Kaniko|
+| ------- | ----------- | ---------|
+| Dockerfile   | not needed | needed|
+| Docker damon   | optional | optional|
+| Windows containers | yes | no |
 | setting | optional from simple to specefic |
 | peformance    | good |
-| work with online repos    | yes |
-| compatibility    | Maven, Gradle |
+| work with online repos    | yes | yes|
+| compatibility    | Maven, Gradle | |
 
 # What you need to know before starting
 
@@ -19,6 +20,8 @@ __[Spring Boot Crash Course](https://www.youtube.com/watch?v=vtPkZShrvXQ&t=)__
 __[Best Docker tutorial](https://www.youtube.com/watch?v=YFl2mCHdv24)__
 
 __[Dockerfile tutorial](https://www.youtube.com/watch?v=LQjaJINkQXY&t=)__
+
+__[Kubernetes](https://www.youtube.com/watch?v=R-3dfURb2hA)__
 
 # __[Jib](https://github.com/GoogleContainerTools/jib)__
 
@@ -71,7 +74,7 @@ Add the following plugin into the `pom.xml` of your maven project:
 And you are almost good to go.
 
 But in order to manage and to share your Docker images online you will need a service for this. And you need a setup of your credentials for the plugin to be able to authentivate into your repository. There are a couple of services for that:
-<a name="desc"></a>
+
 ### __[Docker Hub](https://hub.docker.com)__
 
 The fastest way for me was to install __[Docker for Desktop](https://hub.docker.com/?overlay=onboarding)__ and after installation to log into the app with your __[Docker Hub](https://hub.docker.com/)__ account to push and manage your images with your Docker Hub easily. 
@@ -121,3 +124,55 @@ And your image will be built and sent to you repository.
 For more specific settings and features please check the __[Jib __repository](https://github.com/GoogleContainerTools/jib/tree/master/jib-maven-plugin)__.
 
 # __[Kaniko](https://github.com/GoogleContainerTools/kaniko)__
+
+# __[Quarkus](https://quarkus.io/)__
+
+
+First you have to configure __[configure graalvm](https://quarkus.io/guides/building-native-image#configuring-graalvm)__
+
+Graal for MAC
+
+    brew cask install graalvm/tap/graalvm-ce-java11
+after installing graalVM add its binary to the PATH (MAC)
+    
+    export PATH=/Library/Java/JavaVirtualMachines/graalvm-ce-java11-19.3.1/Contents/Home/bin:"$PATH"
+
+And follow further instructions to be able to build images with help of Quarkus.
+
+Or you may use the [helping tool](https://code.quarkus.io/) to build your app tamplate from scratch and start developing in a boot strapped application.
+
+Helpful examples can be found __[here](https://github.com/quarkusio/quarkus-quickstarts/)__.
+
+Create native executable.
+
+    ./mvnw package -Pnative
+
+Run your Docker daemon aun Build the docker image with:
+
+    docker build -f src/main/docker/Dockerfile.native -t quarkus-quickstart/getting-started .
+
+Save the contents of this file in `src/main/docker/Dockerfile.multistage` as it is not included in the getting started quickstart.
+
+    ## Stage 1 : build with maven builder image with native capabilities
+    FROM quay.io/quarkus/centos-quarkus-maven:19.3.1 AS build
+    COPY src /usr/src/app/src
+    COPY pom.xml /usr/src/app
+    USER root
+    RUN chown -R quarkus /usr/src/app
+    USER quarkus
+    RUN mvn -f /usr/src/app/pom.xml -Pnative clean package
+
+    ## Stage 2 : create the docker final image
+    FROM registry.access.redhat.com/ubi8/ubi-minimal
+    WORKDIR /work/
+    COPY --from=build /usr/src/app/target/*-runner /work/application
+    RUN chmod 775 /work
+    EXPOSE 8080
+    CMD ["./application", "-Dquarkus.http.host=0.0.0.0"]
+
+__Note:__ The first line  `FROM... 19.3.1` was changed to "19.3.1-java11", because the manifest in the official tutorial is no more avaliable in the repository and .
+
+
+Build multistage docker image with:
+
+
