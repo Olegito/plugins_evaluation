@@ -3,16 +3,16 @@ This repository is made to evaluate various __[Maven](https://maven.apache.org/)
 
 # General comparison
 
-| Feature | Jib |Kaniko|Quarkus|
-| ------------------ | ----------- | ---------|------|
-| Dockerfile         | not needed | needed| needed
-| Docker damon       | optional | optional| needed
-| Windows containers | yes | no | yes
-| setting            | optional from simple to specefic | | detailed, specific, with Dockerfile|
-| peformance    | good | |multistage images very memory consuming|
-| work with online repos    | yes | yes| not detected|
-| compatibility    | Maven, Gradle | | |
-|documentation quality|good||big, helping examples, but sometimes not correct|
+| Feature            | Jib         |Kaniko    |Quarkus| Spotify maven plugin|
+| ------------------ | ----------- | ---------|-------|----------------|
+| Dockerfile         | not needed | needed| needed |optional|
+| Docker damon       | optional | optional| needed|yes|
+| Windows containers | yes | no | yes|yes|
+| setting            | optional from simple to specefic | | detailed, specific, with Dockerfile| optional from simple to specefic |
+| peformance    | good | |multistage images very memory consuming|good|
+| work with online repos    | yes | yes| not detected|yes (not succesfuly tried)|
+| compatibility    | Maven, Gradle | |numerous platforms |Maven|
+|documentation quality|good||big, helping examples, but sometimes not correct|short and clear|
 
 # What you need to know before starting
 
@@ -179,3 +179,22 @@ Build multistage docker image with:
     docker build -f src/main/docker/Dockerfile.multistage -t quarkus-quickstart/getting-started .
 
 __Note:__ The build of this image failed two times with code 137 (out of memory). So further work with this was tool was stopped. 
+
+# __[Spotify Docker maven plugin](https://github.com/spotify/docker-maven-plugin)__
+
+This plugin was the initial Maven plugin used at Spotify for building Docker images out of Java services. It was initially created in 2014 when we first began experimenting with Docker. This plugin is capable of generating a 'Dockerfile' for you based on configuration in the 'pom.xml' file for things like the 'FROM' image, resources to add with `ADD/COPY`, etc.
+
+The integration is explained [here](https://www.youtube.com/watch?reload=9&v=2v0-aIO_R08).
+
+__Note:__ To get rid of the stack while building the image  trace following dependency was added into the plugin tag:
+
+    <dependencies>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
+        </dependency>
+    </dependencies>
+
+It was possible to push the image manually, but not with help of the plugin, for some reasons.
+
